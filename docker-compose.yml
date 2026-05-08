@@ -1,0 +1,58 @@
+#
+# Services definitions
+#
+services:
+  app:
+    image: kooldev/php:8.3-nginx
+    ports:
+      - "${KOOL_APP_PORT:-80}:80"
+    environment:
+      - USER_ID=1000
+      - GROUP_ID=1000
+    volumes:
+      - .:/app:delegated
+    networks:
+      - local
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 256M
+  database:
+    image: mysql:8.4.7
+    ports:
+      - ${KOOL_DATABASE_PORT:-3306}:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD-rootpass}
+      MYSQL_DATABASE: ${DB_DATABASE-database}
+      MYSQL_PASSWORD: ${DB_PASSWORD-pass}
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    volumes:
+      - database:/var/lib/mysql:delegated
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1024M
+    networks:
+      - local
+    healthcheck:
+      test: mysqladmin -p${DB_PASSWORD-pass} ping
+  node:
+    image: kooldev/node:20
+    command: [ "npm", "run", "dev" ]
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/app:delegated
+    networks:
+      - local
+    depends_on:
+      - app
+#
+# Networks definitions
+#
+networks:
+  local:
+volumes:
+  database:
