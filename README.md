@@ -13,6 +13,7 @@ O sistema atual possui um painel administrativo feito em Filament com uma listag
 Você deverá criar uma funcionalidade que permita exportar os dados listados como uma planilha Excel no seguinte formato:
 
 | Nome | E-mail | Data de Nascimento | Range de Escolaridade | Escola | CPF | RG | Logradouro | CEP | Aprovações | Reprovações |
+
 | Aluno 1 | aluno@gmail.com | 2000-01-01 | 2020-2024 | Escola 1 | 111.111.111-11 | 11.111.111-1 | Endereco | 99999-999 | 3 | 4 |
 
 Onde:
