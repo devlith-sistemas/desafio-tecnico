@@ -3,15 +3,12 @@
 namespace App\Exports;
 
 use App\Models\User;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromQuery;
 
-class UsersExport implements FromCollection
+class UsersExport implements FromQuery
 {
-    /**
-    * @return \Illuminate\Support\Collection
-    */
-    public function collection()
+    public function query()
     {
-        return User::all();
+        return User::query();
     }
 }
