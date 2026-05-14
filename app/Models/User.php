@@ -63,4 +63,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Endereco::class);
     }
+
+    public function studentExports()
+    {
+        return $this->hasMany(StudentExport::class, 'requested_by_user_id');
+    }
 }
