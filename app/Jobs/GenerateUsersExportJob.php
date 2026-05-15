@@ -15,7 +15,9 @@ class GenerateUsersExportJob implements ShouldQueue
 
     public function handle(): void
     {
-        $path = storage_path('app/exports/users.csv');
+        $filename = 'users-' . now()->timestamp . '.csv';
+
+        $path = storage_path('app/public/exports/' . $filename);
 
         if (!file_exists(dirname($path))) {
             mkdir(dirname($path), 0777, true);
@@ -60,5 +62,10 @@ class GenerateUsersExportJob implements ShouldQueue
             });
 
         fclose($file);
+        cache()->put(
+        'last_users_export',
+        $filename,
+        now()->addHour()
+);
     }
 }

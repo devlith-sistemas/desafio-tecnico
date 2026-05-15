@@ -12,6 +12,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Jobs\GenerateUsersExportJob;
+use Filament\Notifications\Notification;
 
 class UserResource extends Resource
 {
@@ -66,6 +68,26 @@ class UserResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->headerActions([
+                Tables\Actions\Action::make('export')
+                    ->label('Exportar CSV')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->action(function () {
+                        GenerateUsersExportJob::dispatch();
+
+                        Notification::make()
+                            ->title('Exportação iniciada')
+                            ->body('O arquivo CSV está sendo gerado em background.')
+                            ->success()
+                            ->send();
+                    }),
+
+                    Tables\Actions\Action::make('download')
+                    ->label('Baixar Último CSV')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->url(fn () => url('/download-export'))
+                    ->openUrlInNewTab(),
             ])
             ->filters([
                 //
