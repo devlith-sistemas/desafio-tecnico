@@ -4,18 +4,26 @@ namespace App\Exports;
 
 use App\Models\User;
 use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class UsersExport implements FromQuery, WithHeadings, WithMapping
+class UsersExport implements FromQuery, WithHeadings, WithMapping, WithChunkReading
 {
     public function query()
     {
         return User::query()
-            ->with([
-                'documento',
-                'endereco',
-                'matriculas.escola',
+            ->leftJoin('documentos', 'documentos.user_id', '=', 'users.id')
+            ->leftJoin('enderecos', 'enderecos.user_id', '=', 'users.id')
+            ->select([
+                'users.id',
+                'users.name',
+                'users.email',
+                'users.data_de_nascimento',
+                'documentos.cpf',
+                'documentos.rg',
+                'enderecos.logradouro',
+                'enderecos.cep',
             ]);
     }
 
@@ -38,54 +46,23 @@ class UsersExport implements FromQuery, WithHeadings, WithMapping
 
     public function map($user): array
     {
-        $matriculas = $user->matriculas;
-
-        $primeiraMatricula = $matriculas->min('ano_letivo');
-
-        $ultimaMatricula = $matriculas->max('ano_letivo');
-
-        $rangeEscolaridade = $primeiraMatricula && $ultimaMatricula
-            ? "{$primeiraMatricula}-{$ultimaMatricula}"
-            : '';
-
-        $matriculaMaisRecente = $matriculas
-            ->sortByDesc('ano_letivo')
-            ->first();
-
-        $escolaMaisRecente = optional($matriculaMaisRecente?->escola)->nome;
-
-        $aprovacoes = $matriculas
-            ->where('resultado_final', 'aprovado')
-            ->count();
-
-        $reprovacoes = $matriculas
-            ->where('resultado_final', 'reprovado')
-            ->count();
-
         return [
             $user->name,
-
             $user->email,
-
-            $user->data_de_nascimento?->format('Y-m-d'),
-
-            $rangeEscolaridade,
-
-            $escolaMaisRecente,
-
-            optional($user->documento)->cpf,
-
-            optional($user->documento)->rg,
-
-            optional($user->endereco)->logradouro,
-
-            optional($user->endereco)->cep,
-
-            $aprovacoes,
-
-            $reprovacoes,
+            $user->data_de_nascimento,
+            '',
+            '',
+            $user->cpf,
+            $user->rg,
+            $user->logradouro,
+            $user->cep,
+            '',
+            '',
         ];
     }
 
-
+    public function chunkSize(): int
+    {
+        return 1000;
+    }
 }

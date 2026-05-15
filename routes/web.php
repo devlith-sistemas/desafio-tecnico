@@ -7,9 +7,10 @@ Route::get('/', function () {
 });
 
 
-use App\Exports\UsersExport;
-use Maatwebsite\Excel\Facades\Excel;
+use App\Jobs\GenerateUsersExportJob;
 
-Route::get('/teste-export', function () {
-    return Excel::download(new UsersExport, 'usuarios.xlsx');
+Route::get('/teste-job', function () {
+    GenerateUsersExportJob::dispatch();
+
+    return 'Job enviado com sucesso';
 });
